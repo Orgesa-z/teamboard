@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teamboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Teamboard</h1>
+  <p id="who"></p>
+</header>
+
+<form id="add">
+  <input id="text" maxlength="140" placeholder="What needs doing?" autocomplete="off">
+  <button>Add note</button>
+</form>
+
+<main>
+  <section data-col="todo"><h2>To do</h2><div class="list"></div></section>
+  <section data-col="doing"><h2>In progress</h2><div class="list"></div></section>
+  <section data-col="done"><h2>Done</h2><div class="list"></div></section>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

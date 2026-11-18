@@ -1,0 +1,60 @@
+:root {
+  --wall: #d9e2dc;
+  --ink: #26332d;
+  --lane: #cbd7d0;
+  --accent: #2f6f62;
+  --yellow: #f6e58d;
+  --pink: #f4b9b2;
+  --blue: #b5d3ea;
+  --mint: #bfe3c0;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --wall: #1f2925; --ink: #e8efe9; --lane: #2a3630; --accent: #6fc2b0; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 24px 20px 40px;
+  background: var(--wall); color: var(--ink);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+header { display: flex; align-items: baseline; gap: 16px; max-width: 1000px; margin: 0 auto 16px; }
+h1 { font-family: Georgia, serif; font-size: 2rem; margin: 0; }
+#who { margin: 0; font-size: .9rem; opacity: .8; }
+
+#add { display: flex; gap: 8px; max-width: 1000px; margin: 0 auto 24px; }
+#add input {
+  flex: 1; padding: 10px 12px; font-size: 1rem;
+  border: 2px solid var(--ink); border-radius: 4px; background: transparent; color: var(--ink);
+}
+#add button {
+  padding: 10px 18px; font-size: 1rem; cursor: pointer;
+  background: var(--accent); color: #fff; border: 0; border-radius: 4px;
+}
+#add button:hover { filter: brightness(1.1); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 1000px; margin: 0 auto; }
+section { background: var(--lane); border-radius: 6px; padding: 12px; min-height: 360px; }
+section h2 { margin: 0 0 12px; font-size: 1.05rem; }
+section.over { outline: 2px dashed var(--accent); }
+.list { display: flex; flex-direction: column; gap: 12px; min-height: 280px; }
+
+.note {
+  position: relative; padding: 14px 30px 12px 14px; color: #2b2b2b;
+  font-family: "Segoe Print", "Comic Sans MS", cursive; font-size: .95rem; line-height: 1.35;
+  box-shadow: 2px 3px 0 rgba(0,0,0,.18); cursor: grab; overflow-wrap: anywhere;
+}
+.note:nth-child(4n+1) { background: var(--yellow); transform: rotate(-1.2deg); }
+.note:nth-child(4n+2) { background: var(--pink);   transform: rotate(.9deg); }
+.note:nth-child(4n+3) { background: var(--blue);   transform: rotate(-.5deg); }
+.note:nth-child(4n)   { background: var(--mint);   transform: rotate(1.3deg); }
+.note.dragging { opacity: .4; }
+.note small { display: block; margin-top: 8px; font-family: "Segoe UI", sans-serif; font-size: .75rem; opacity: .65; }
+.note button {
+  position: absolute; top: 4px; right: 6px; border: 0; background: none;
+  font-size: 1.1rem; cursor: pointer; color: #2b2b2b; opacity: .5;
+}
+.note button:hover { opacity: 1; }
+.empty { opacity: .6; font-size: .9rem; padding: 8px 2px; }
+
+@media (max-width: 700px) { main { grid-template-columns: 1fr; } }
