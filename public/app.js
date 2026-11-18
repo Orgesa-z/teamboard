@@ -1,51 +1,122 @@
 const $ = (id) => document.getElementById(id);
-const authBox = $('auth'), appBox = $('app'), logoutBtn = $('logout'), who = $('who');
-let socket = null;
+const authBox = $('auth'), appBox = $('app'), logoutBtn = $('logout'), who = $('who'), msg = $('msg');
+let token = localStorage.getItem('tb-token');
+const myId = Number(localStorage.getItem('tb-id'));
+let socket = null, boards = [], currentBoardId = null, role = null;
 
 // ---------- Login / signup ----------
-function saveSession(data) {
-  localStorage.setItem('tb-token', data.token);
-  localStorage.setItem('tb-id', data.id);
-  localStorage.setItem('tb-name', data.name);
-}
 function logout() {
-  localStorage.removeItem('tb-token');
-  localStorage.removeItem('tb-id');
-  localStorage.removeItem('tb-name');
+  ['tb-token', 'tb-id', 'tb-name'].forEach((k) => localStorage.removeItem(k));
   location.reload();
 }
 logoutBtn.addEventListener('click', logout);
 
 $('authForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const mode = e.submitter.dataset.mode; // 'login' or 'signup'
   $('authError').textContent = '';
-  const res = await fetch('/api/' + mode, {
+  const res = await fetch('/api/' + e.submitter.dataset.mode, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: $('username').value, password: $('password').value }),
   });
   const data = await res.json();
   if (!res.ok) { $('authError').textContent = data.error; return; }
-  saveSession(data);
-  startBoard();
+  localStorage.setItem('tb-token', data.token);
+  localStorage.setItem('tb-id', data.id);
+  localStorage.setItem('tb-name', data.name);
+  location.reload();
 });
 
-// ---------- Board ----------
-function startBoard() {
-  const token = localStorage.getItem('tb-token');
-  const myId = Number(localStorage.getItem('tb-id'));
-  if (!token) { authBox.hidden = false; return; }
+// ---------- Helpers ----------
+const flash = (text) => { msg.textContent = text || ''; };
 
+async function api(url, method = 'GET', body) {
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) { logout(); throw new Error('Please log in again.'); }
+  if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+  return data;
+}
+
+// ---------- Boards ----------
+async function loadBoards(preferId) {
+  boards = await api('/api/boards');
+  const select = $('boardSelect');
+  select.innerHTML = '';
+  boards.forEach((b) => {
+    const o = document.createElement('option');
+    o.value = b.id;
+    o.textContent = b.name + (b.role === 'owner' ? '' : ' (member)');
+    select.appendChild(o);
+  });
+  const stillThere = boards.find((b) => b.id === (preferId || currentBoardId));
+  const target = stillThere || boards[0];
+  $('boardArea').hidden = $('boardTools').hidden = !target;
+  select.hidden = !target;
+  if (!target) { currentBoardId = null; flash('Create your first board to get started.'); who.textContent = ''; return; }
+  select.value = target.id;
+  openBoard(target.id);
+}
+
+function openBoard(id) {
+  currentBoardId = id;
+  socket.emit('board:join', id, (res) => {
+    if (res.error) { flash(res.error); return; }
+    role = res.role;
+    $('invite').hidden = $('delBoard').hidden = role !== 'owner';
+    flash('');
+    loadMembers();
+  });
+}
+
+async function loadMembers() {
+  const list = await api(`/api/boards/${currentBoardId}/members`);
+  $('members').textContent = 'Members: ' + list.map((m) => m.username + (m.role === 'owner' ? ' (owner)' : '')).join(', ');
+}
+
+$('boardSelect').addEventListener('change', (e) => openBoard(Number(e.target.value)));
+
+$('newBoard').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const b = await api('/api/boards', 'POST', { name: $('newBoardName').value });
+    $('newBoardName').value = '';
+    await loadBoards(b.id);
+  } catch (err) { flash(err.message); }
+});
+
+$('invite').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const r = await api(`/api/boards/${currentBoardId}/members`, 'POST', { username: $('inviteName').value });
+    $('inviteName').value = '';
+    flash(r.username + ' was added to the board.');
+    loadMembers();
+  } catch (err) { flash(err.message); }
+});
+
+$('delBoard').addEventListener('click', async () => {
+  if (!confirm('Delete this board and all its notes?')) return;
+  try { await api('/api/boards/' + currentBoardId, 'DELETE'); } catch (err) { flash(err.message); }
+});
+
+// ---------- Notes ----------
+function startApp() {
   authBox.hidden = true;
   appBox.hidden = false;
   logoutBtn.hidden = false;
 
   socket = io({ auth: { token } });
   socket.on('connect_error', (err) => { if (err.message === 'unauthorized') logout(); });
+  socket.on('connect', () => { loadBoards(currentBoardId).catch((e) => flash(e.message)); });
+  socket.on('boards:changed', () => loadBoards(currentBoardId).catch(() => {}));
 
   const lists = {};
-  document.querySelectorAll('#app section').forEach((sec) => {
+  document.querySelectorAll('#boardArea section').forEach((sec) => {
     const col = sec.dataset.col;
     lists[col] = sec.querySelector('.list');
     sec.addEventListener('dragover', (e) => { e.preventDefault(); sec.classList.add('over'); });
@@ -63,10 +134,7 @@ function startBoard() {
       const el = document.createElement('div');
       el.className = 'note';
       el.draggable = true;
-      el.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', card.id);
-        el.classList.add('dragging');
-      });
+      el.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', card.id); el.classList.add('dragging'); });
       el.addEventListener('dragend', () => el.classList.remove('dragging'));
 
       const text = document.createElement('span');
@@ -78,9 +146,8 @@ function startBoard() {
         by.textContent = 'added by ' + card.author;
         el.appendChild(by);
       }
-
-      // Only the author sees the delete button (the server checks this too)
-      if (!card.authorId || card.authorId === myId) {
+      // Authors can delete their notes, the board owner can delete any note
+      if (card.authorId === myId || role === 'owner') {
         const del = document.createElement('button');
         del.textContent = '×';
         del.title = 'Delete note';
@@ -94,9 +161,7 @@ function startBoard() {
     }
   });
 
-  socket.on('online', (names) => {
-    who.textContent = names.length + ' online: ' + names.join(', ');
-  });
+  socket.on('online', (names) => { who.textContent = names.length + ' online: ' + names.join(', '); });
 }
 
 $('add').addEventListener('submit', (e) => {
@@ -107,4 +172,4 @@ $('add').addEventListener('submit', (e) => {
   input.focus();
 });
 
-startBoard();
+if (token) startApp(); else authBox.hidden = false;

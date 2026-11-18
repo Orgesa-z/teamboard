@@ -27,15 +27,33 @@
 </section>
 
 <div id="app" hidden>
-  <form id="add">
-    <input id="text" maxlength="140" placeholder="What needs doing?" autocomplete="off">
-    <button>Add note</button>
-  </form>
-  <main>
-    <section data-col="todo"><h2>To do</h2><div class="list"></div></section>
-    <section data-col="doing"><h2>In progress</h2><div class="list"></div></section>
-    <section data-col="done"><h2>Done</h2><div class="list"></div></section>
-  </main>
+  <div id="bar">
+    <select id="boardSelect" aria-label="Choose a board"></select>
+    <form id="newBoard">
+      <input id="newBoardName" maxlength="40" placeholder="New board name" autocomplete="off">
+      <button>Create board</button>
+    </form>
+  </div>
+  <div id="boardTools" hidden>
+    <p id="members"></p>
+    <form id="invite" hidden>
+      <input id="inviteName" placeholder="Invite by username" autocomplete="off">
+      <button>Invite</button>
+    </form>
+    <button id="delBoard" hidden>Delete board</button>
+  </div>
+  <p id="msg" role="status"></p>
+  <div id="boardArea" hidden>
+    <form id="add">
+      <input id="text" maxlength="140" placeholder="What needs doing?" autocomplete="off">
+      <button>Add note</button>
+    </form>
+    <main>
+      <section data-col="todo"><h2>To do</h2><div class="list"></div></section>
+      <section data-col="doing"><h2>In progress</h2><div class="list"></div></section>
+      <section data-col="done"><h2>Done</h2><div class="list"></div></section>
+    </main>
+  </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

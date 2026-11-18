@@ -78,3 +78,21 @@ section.over { outline: 2px dashed var(--accent); }
   color: var(--ink); border: 2px solid var(--ink); border-radius: 4px; }
 #logout[hidden] { display: none; }
 .note button.hidden { display: none; }
+
+/* ---------- Boards ---------- */
+[hidden] { display: none !important; }
+#bar, #boardTools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; max-width: 1000px; margin: 0 auto 14px; }
+#boardSelect, #newBoard input, #invite input {
+  padding: 9px 10px; font-size: 1rem; background: transparent; color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 4px;
+}
+#boardSelect option { color: #222; }
+#newBoard, #invite { display: flex; gap: 8px; }
+#newBoard button, #invite button { padding: 9px 14px; font-size: 1rem; cursor: pointer;
+  background: var(--accent); color: #fff; border: 0; border-radius: 4px; }
+#delBoard { margin-left: auto; padding: 8px 12px; cursor: pointer; background: transparent;
+  color: #b3412f; border: 2px solid #b3412f; border-radius: 4px; }
+@media (prefers-color-scheme: dark) { #delBoard { color: #ff9c8a; border-color: #ff9c8a; } }
+#members { margin: 0; font-size: .9rem; opacity: .85; }
+#msg { max-width: 1000px; margin: 0 auto 12px; min-height: 1.2em; font-size: .9rem; }
+#boardArea > #add, #boardArea > main { margin-left: auto; margin-right: auto; }
