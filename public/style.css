@@ -58,3 +58,23 @@ section.over { outline: 2px dashed var(--accent); }
 .empty { opacity: .6; font-size: .9rem; padding: 8px 2px; }
 
 @media (max-width: 700px) { main { grid-template-columns: 1fr; } }
+
+/* ---------- Login ---------- */
+#auth { max-width: 360px; margin: 40px auto; background: var(--lane); padding: 22px; border-radius: 6px; }
+#auth[hidden] { display: none; }
+#auth h2 { margin: 0 0 14px; font-family: Georgia, serif; }
+#authForm label { display: block; margin-bottom: 12px; font-size: .9rem; }
+#authForm input {
+  display: block; width: 100%; margin-top: 4px; padding: 9px 10px; font-size: 1rem;
+  border: 2px solid var(--ink); border-radius: 4px; background: transparent; color: var(--ink);
+}
+#authError { min-height: 1.2em; margin: 0 0 10px; color: #b3412f; font-size: .9rem; }
+@media (prefers-color-scheme: dark) { #authError { color: #ff9c8a; } }
+.row { display: flex; gap: 8px; }
+.row button { padding: 10px 16px; font-size: 1rem; cursor: pointer; border-radius: 4px;
+  background: var(--accent); color: #fff; border: 2px solid var(--accent); }
+.row button.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+#logout { margin-left: auto; padding: 6px 12px; cursor: pointer; background: transparent;
+  color: var(--ink); border: 2px solid var(--ink); border-radius: 4px; }
+#logout[hidden] { display: none; }
+.note button.hidden { display: none; }
