@@ -5,8 +5,6 @@ A real-time collaborative task board. Create an account, add notes, drag them be
 **Live demo:** https://teamboard-tlw7.onrender.com
 (The free hosting plan sleeps when idle, so the first load can take about 50 seconds.)
 
-![Teamboard screenshot](screenshots/board.png)
-
 ## Features
 - Sign up and log in with a username and password
 - Add, move (drag and drop) and delete notes
