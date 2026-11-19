@@ -43,3 +43,7 @@ A real-time collaborative task board. Create an account, add notes, drag them be
    npm start
    ```
 4. Open http://localhost:3000
+
+## Tests
+    npm test
+Runs automated tests for sign up, login, board permissions and note deletion rules (Node test runner, needs DATABASE_URL).

@@ -221,10 +221,19 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => sendPresence(socket.boardId));
 });
 
-const PORT = process.env.PORT || 3000;
-initDb()
-  .then(() => {
+async function start() {
+  try {
+    await initDb();
     console.log('Database ready');
+    const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => console.log(`Board running at http://localhost:${PORT}`));
-  })
-  .catch((err) => { console.error('Could not connect to the database:', err.message); process.exit(1); });
+  } catch (err) {
+    console.error('Could not connect to the database:', err.message);
+    process.exit(1);
+  }
+}
+
+// Start the server only when this file is run directly (the tests import it instead)
+if (require.main === module) start();
+
+module.exports = { server, io, pool, initDb };
