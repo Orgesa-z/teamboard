@@ -1,4 +1,5 @@
 # Teamboard
+![Tests](https://github.com/orgesa-z/teamboard/actions/workflows/test.yml/badge.svg)
 
 A real-time collaborative task board. Create an account, add notes, drag them between columns, and watch changes appear instantly for everyone who is online.
 
